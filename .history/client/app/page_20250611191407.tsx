@@ -1,9 +1,8 @@
-import Game from "../components/Game";
 
 export default function Home() {
   return (
     <div>
-      <Game />
+      <h1>hello</h1>
     </div>
   );
 }

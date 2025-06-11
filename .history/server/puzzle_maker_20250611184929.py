@@ -5,7 +5,7 @@ import uuid
 GRID_SIZE = 8
 CELL_SIZE = 100
 ICON_NUM = 10
-ICON_TYPES = [f"icons{i}" for i in range(ICON_NUM)]  # allow large pool
+ICON_TYPES = [f"icon_{i}" for i in range(ICON_NUM)]  # allow large pool
 COPIES_PER_ICON = 6
 
 OFFSETS = [0, 25, -25, 50, -50]
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     scene = generate_scene(level=level)
     with open("scene.json", "w") as f:
         json.dump(scene, f, indent=2)
-    print("Puzzle scene generated for level", level)
+    print("✅ Puzzle scene generated for level", level)
