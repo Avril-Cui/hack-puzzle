@@ -103,7 +103,7 @@ const PuzzleGame: React.FC = () => {
       {gameOver && (
         <div className={styles.popupOverlay}>
           <div className={styles.popup}>
-            <h1>You Lose</h1>
+            <h2>You Lose</h2>
             <button
               onClick={() => {
                 setTiles(initialTiles);

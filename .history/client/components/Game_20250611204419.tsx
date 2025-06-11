@@ -20,10 +20,7 @@ const PuzzleGame: React.FC = () => {
   useEffect(() => {
     fetch("/scene.json")
       .then((res) => res.json())
-      .then((data: Tile[]) => {
-        setTiles(data);
-        setInitialTiles(data);
-      });
+      .then((data: Tile[]) => setTiles(data));
   }, []);
 
   const handleClick = (tile: Tile) => {
@@ -34,29 +31,18 @@ const PuzzleGame: React.FC = () => {
 
     // If 3 same tiles exist, remove them
     if (sameTiles.length === 3) {
-      const filteredQueue = newQueue.filter(
+      const newQueueFiltered = newQueue.filter(
         (t) => t.iconName !== tile.iconName
       );
-      setQueue(filteredQueue);
+      setQueue(newQueueFiltered);
     } else {
       setQueue(newQueue);
-
-      // Check for loss: 7 full, and no 3 of a kind
-      if (newQueue.length === 7) {
-        const counts: Record<string, number> = {};
-        newQueue.forEach((t) => {
-          counts[t.iconName] = (counts[t.iconName] || 0) + 1;
-        });
-        const hasTriple = Object.values(counts).some((count) => count >= 3);
-        if (!hasTriple) {
-          setGameOver(true);
-        }
-      }
     }
 
     // Remove the tile from the board
     setTiles((t) => t.filter((x) => x.id !== tile.id));
   };
+
   // returns true if tile at `idx` is overlapped by any later (higher) tile still in play
   const isCovered = (idx: number) => {
     const cur = tiles[idx];
@@ -95,27 +81,8 @@ const PuzzleGame: React.FC = () => {
     return `/icons/${iconName}.${extMap[iconName] || "png"}`;
   };
 
-  const [gameOver, setGameOver] = useState(false);
-  const [initialTiles, setInitialTiles] = useState<Tile[]>([]);
-
   return (
     <div className={styles.gameContainer}>
-      {gameOver && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popup}>
-            <h1>You Lose</h1>
-            <button
-              onClick={() => {
-                setTiles(initialTiles);
-                setQueue([]);
-                setGameOver(false);
-              }}
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      )}
       <div className={styles.tileBoard}>
         {tiles.map((tile, idx) => {
           // inactive if picked OR if covered by any tile with a higher array-index

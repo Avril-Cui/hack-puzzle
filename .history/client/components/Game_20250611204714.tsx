@@ -100,22 +100,6 @@ const PuzzleGame: React.FC = () => {
 
   return (
     <div className={styles.gameContainer}>
-      {gameOver && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popup}>
-            <h1>You Lose</h1>
-            <button
-              onClick={() => {
-                setTiles(initialTiles);
-                setQueue([]);
-                setGameOver(false);
-              }}
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      )}
       <div className={styles.tileBoard}>
         {tiles.map((tile, idx) => {
           // inactive if picked OR if covered by any tile with a higher array-index
