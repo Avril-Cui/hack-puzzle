@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styles from "./Game.module.css";
+import MorseBuilding from "./Building";
+import Rules from "./Rules";
+import Flag from "./Flag";
 
 interface Tile {
   id: string;
@@ -13,9 +16,25 @@ interface Tile {
 const CELL_SIZE = 100;
 const ICONS = ["🍀", "🌈", "⚙️", "🐏", "🐯", "🐤", "📚", "🧠", "💻", "🐼"];
 
+const morseMap: Record<string, string> = {
+  A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.",
+  H: "....", I: "..", J: ".---", K: "-.-", L: ".-..", M: "--", N: "-.",
+  O: "---", P: ".--.", Q: "--.-", R: ".-.", S: "...", T: "-", U: "..-",
+  V: "...-", W: ".--", X: "-..-", Y: "-.--", Z: "--.."
+};
+
+const FLAG = "FORESTTMPL";
+
 const PuzzleGame: React.FC = () => {
   const [tiles, setTiles] = useState<Tile[]>([]);
+  const [initialTiles, setInitialTiles] = useState<Tile[]>([]);
   const [queue, setQueue] = useState<Tile[]>([]);
+  const [matchCount, setMatchCount] = useState(0);
+  const [revealedLetters, setRevealedLetters] = useState<string[]>([]);
+  const [gameOver, setGameOver] = useState(false);
+  const [showRules, setShowRules] = useState(true);
+  const [showFlagInput, setShowFlagInput] = useState(false);
+  const [flagStatus, setFlagStatus] = useState<"correct" | "incorrect" | null>(null);
 
   useEffect(() => {
     fetch("/scene.json")
@@ -26,6 +45,7 @@ const PuzzleGame: React.FC = () => {
       });
   }, []);
 
+  // Tile click handler
   const handleClick = (tile: Tile) => {
     if (queue.length >= 7) return;
 
@@ -38,6 +58,14 @@ const PuzzleGame: React.FC = () => {
         (t) => t.iconName !== tile.iconName
       );
       setQueue(filteredQueue);
+      // Morse logic
+      const newCount = matchCount + 1;
+      setMatchCount(newCount);
+
+      if (newCount % 5 === 0 && revealedLetters.length < FLAG.length) {
+        const currentLetter = FLAG[revealedLetters.length];
+        setRevealedLetters((prev) => [...prev, currentLetter]);
+      }
     } else {
       setQueue(newQueue);
 
@@ -57,6 +85,7 @@ const PuzzleGame: React.FC = () => {
     // Remove the tile from the board
     setTiles((t) => t.filter((x) => x.id !== tile.id));
   };
+
   // returns true if tile at `idx` is overlapped by any later (higher) tile still in play
   const isCovered = (idx: number) => {
     const cur = tiles[idx];
@@ -79,6 +108,18 @@ const PuzzleGame: React.FC = () => {
     return false;
   };
 
+  // Flag guess submission logic
+  const handleFlagSubmit = (guess: string) => {
+    const cleaned = guess.trim().toUpperCase();
+    if (cleaned === FLAG) {
+      setFlagStatus("correct");
+    } else {
+      setFlagStatus("incorrect");
+    }
+    setShowFlagInput(false);
+  };
+
+  // Get icon path
   const getIconPath = (iconName: string) => {
     const extMap: Record<string, string> = {
       icons0: "svg",
@@ -95,71 +136,131 @@ const PuzzleGame: React.FC = () => {
     return `/icons/${iconName}.${extMap[iconName] || "png"}`;
   };
 
-  const [gameOver, setGameOver] = useState(false);
-  const [initialTiles, setInitialTiles] = useState<Tile[]>([]);
 
   return (
-    <div className={styles.gameContainer}>
-      {gameOver && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popup}>
-            <h1>You Lose</h1>
-            <button
-              onClick={() => {
-                setTiles(initialTiles);
-                setQueue([]);
-                setGameOver(false);
-              }}
-            >
-              Try Again
-            </button>
+    <>
+      <div className={styles.gameContainer}>
+        {gameOver && (
+          <div className={styles.popupOverlay}>
+            <div className={styles.popup}>
+              <h1>You Lose</h1>
+              <button
+                onClick={() => {
+                  setTiles(initialTiles);
+                  setQueue([]);
+                  setGameOver(false);
+                  setRevealedLetters([]);
+                  setMatchCount(0);
+                }}
+              >
+                Try Again
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-      <div className={styles.tileBoard}>
-        {tiles.map((tile, idx) => {
-          // inactive if picked OR if covered by any tile with a higher array-index
-          const inactive = tile.status !== 0 || isCovered(idx);
+        )}
+        {/* Tile board */}
+        <div className={styles.tileBoard}>
+          {tiles.map((tile, idx) => {
+            // inactive if picked OR if covered by any tile with a higher array-index
+            const inactive = tile.status !== 0 || isCovered(idx);
 
-          return (
-            <div
-              key={tile.id}
-              className={`${styles.tile} ${inactive ? styles.inactive : ""}`}
-              style={{
-                left: tile.x,
-                top: tile.y,
-                zIndex: idx, // ensures later array items actually draw on top
-              }}
-              onClick={() => {
-                if (!inactive && queue.length < 7) handleClick(tile);
-              }}
-            >
+            return (
+              <div
+                key={tile.id}
+                className={`${styles.tile} ${inactive ? styles.inactive : ""}`}
+                style={{
+                  left: tile.x,
+                  top: tile.y,
+                  zIndex: idx, // ensures later array items actually draw on top
+                }}
+                onClick={() => {
+                  if (!inactive && queue.length < 7) handleClick(tile);
+                }}
+              >
+                <img
+                  src={getIconPath(tile.iconName)}
+                  alt={tile.iconName}
+                  className={styles.tileInner}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Queue bar */}
+        <div className={styles.queueBar}>
+          {queue.map((t) => (
+            <div key={t.id} className={styles.queueTile}>
               <img
-                src={getIconPath(tile.iconName)}
-                alt={tile.iconName}
+                src={getIconPath(t.iconName)}
+                alt={t.iconName}
                 className={styles.tileInner}
+                style={{ filter: "none", opacity: 1 }}
               />
             </div>
-          );
-        })}
+          ))}
+          {Array.from({ length: 7 - queue.length }).map((_, i) => (
+            <div key={i} className={styles.queueTile} />
+          ))}
+        </div>
+
+        {/* Morse buildings */}
+        <div style={{ display: "flex", justifyContent: "center", gap: "10px", margin: "20px 0" }}>
+          {Array.from({ length: FLAG.length }).map((_, idx) => {
+            const letter = revealedLetters[idx];
+            const morse = letter ? morseMap[letter] : null;
+
+            return (
+              <MorseBuilding
+                key={idx}
+                morseCode={morse}
+                triggerKey={idx} // this ensures each building re-renders only when unlocked
+              />
+            );
+          })}
+        </div>
       </div>
 
-      <div className={styles.queueBar}>
-        {queue.map((t) => (
-          <div key={t.id} className={styles.queueTile}>
-            <img
-              src={getIconPath(t.iconName)}
-              alt={t.iconName}
-              className={styles.tileInner}
-              style={{ filter: "none", opacity: 1 }}
-            />
-          </div>
-        ))}
-        {Array.from({ length: 7 - queue.length }).map((_, i) => (
-          <div key={i} className={styles.queueTile} />
-        ))}
-      </div>
-    </div>
+      {/* Rules overlay */}
+      {showRules && <Rules onClose={() => setShowRules(false)} />}
+
+      {/* Flag button (bottom-right corner) */}
+      <button
+        onClick={() => setShowFlagInput(true)}
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          fontSize: "24px",
+          background: "none",
+          border: "none",
+          color: "white",
+          cursor: "pointer"
+        }}
+        title="Submit Flag"
+      >
+        🚩
+      </button>
+
+      {showFlagInput && (
+        <Flag
+          onClose={() => setShowFlagInput(false)}
+          onSubmit={handleFlagSubmit}
+        />
+      )}
+
+      {/* Optional: Result message */}
+      {flagStatus === "correct" && (
+        <div style={{ color: "lightgreen", textAlign: "center", marginTop: "10px" }}>
+          ✅ Correct flag!
+        </div>
+      )}
+      {flagStatus === "incorrect" && (
+        <div style={{ color: "salmon", textAlign: "center", marginTop: "10px" }}>
+          ❌ Incorrect. Try again.
+        </div>
+      )}
+    </>
   );
 };
 
