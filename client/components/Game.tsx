@@ -9,18 +9,40 @@ interface Tile {
   id: string;
   x: number;
   y: number;
-  status: number; // 0 = unpicked, 1 = in queue
+  status: number;
   iconName: string;
 }
 
-const CELL_SIZE = 100;
+const CELL_SIZE = 60;
 const ICONS = ["🍀", "🌈", "⚙️", "🐏", "🐯", "🐤", "📚", "🧠", "💻", "🐼"];
 
 const morseMap: Record<string, string> = {
-  A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.",
-  H: "....", I: "..", J: ".---", K: "-.-", L: ".-..", M: "--", N: "-.",
-  O: "---", P: ".--.", Q: "--.-", R: ".-.", S: "...", T: "-", U: "..-",
-  V: "...-", W: ".--", X: "-..-", Y: "-.--", Z: "--.."
+  A: ".-",
+  B: "-...",
+  C: "-.-.",
+  D: "-..",
+  E: ".",
+  F: "..-.",
+  G: "--.",
+  H: "....",
+  I: "..",
+  J: ".---",
+  K: "-.-",
+  L: ".-..",
+  M: "--",
+  N: "-.",
+  O: "---",
+  P: ".--.",
+  Q: "--.-",
+  R: ".-.",
+  S: "...",
+  T: "-",
+  U: "..-",
+  V: "...-",
+  W: ".--",
+  X: "-..-",
+  Y: "-.--",
+  Z: "--..",
 };
 
 const FLAG = "FORESTTMPL";
@@ -34,7 +56,9 @@ const PuzzleGame: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [showRules, setShowRules] = useState(true);
   const [showFlagInput, setShowFlagInput] = useState(false);
-  const [flagStatus, setFlagStatus] = useState<"correct" | "incorrect" | null>(null);
+  const [flagStatus, setFlagStatus] = useState<"correct" | "incorrect" | null>(
+    null
+  );
 
   useEffect(() => {
     fetch("/scene.json")
@@ -90,16 +114,18 @@ const PuzzleGame: React.FC = () => {
   const isCovered = (idx: number) => {
     const cur = tiles[idx];
     if (cur.status !== 0) return false;
+    // Each unit = 100% of tile width (one cell)
+    const cellUnits = 100;
     for (let j = idx + 1; j < tiles.length; j++) {
       const other = tiles[j];
       if (other.status !== 0) continue;
-      // bounding‐box overlap?
+      // bounding‐box overlap in tile‐units
       if (
         !(
-          cur.x + CELL_SIZE <= other.x ||
-          other.x + CELL_SIZE <= cur.x ||
-          cur.y + CELL_SIZE <= other.y ||
-          other.y + CELL_SIZE <= cur.y
+          cur.x + cellUnits <= other.x ||
+          other.x + cellUnits <= cur.x ||
+          cur.y + cellUnits <= other.y ||
+          other.y + cellUnits <= cur.y
         )
       ) {
         return true;
@@ -136,7 +162,6 @@ const PuzzleGame: React.FC = () => {
     return `/icons/${iconName}.${extMap[iconName] || "png"}`;
   };
 
-
   return (
     <>
       <div className={styles.gameContainer}>
@@ -161,20 +186,19 @@ const PuzzleGame: React.FC = () => {
         {/* Tile board */}
         <div className={styles.tileBoard}>
           {tiles.map((tile, idx) => {
-            // inactive if picked OR if covered by any tile with a higher array-index
             const inactive = tile.status !== 0 || isCovered(idx);
-
             return (
               <div
                 key={tile.id}
                 className={`${styles.tile} ${inactive ? styles.inactive : ""}`}
                 style={{
-                  left: tile.x,
-                  top: tile.y,
-                  zIndex: idx, // ensures later array items actually draw on top
+                  transform: `translateX(${tile.x}%) translateY(${tile.y}%)`,
+                  zIndex: idx,
                 }}
                 onClick={() => {
-                  if (!inactive && queue.length < 7) handleClick(tile);
+                  if (!inactive && queue.length < 7) {
+                    handleClick(tile);
+                  }
                 }}
               >
                 <img
@@ -205,7 +229,14 @@ const PuzzleGame: React.FC = () => {
         </div>
 
         {/* Morse buildings */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "10px", margin: "20px 0" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "10px",
+            margin: "20px 0",
+          }}
+        >
           {Array.from({ length: FLAG.length }).map((_, idx) => {
             const letter = revealedLetters[idx];
             const morse = letter ? morseMap[letter] : null;
@@ -235,7 +266,7 @@ const PuzzleGame: React.FC = () => {
           background: "none",
           border: "none",
           color: "white",
-          cursor: "pointer"
+          cursor: "pointer",
         }}
         title="Submit Flag"
       >
@@ -251,12 +282,20 @@ const PuzzleGame: React.FC = () => {
 
       {/* Optional: Result message */}
       {flagStatus === "correct" && (
-        <div style={{ color: "lightgreen", textAlign: "center", marginTop: "10px" }}>
+        <div
+          style={{
+            color: "lightgreen",
+            textAlign: "center",
+            marginTop: "10px",
+          }}
+        >
           ✅ Correct flag!
         </div>
       )}
       {flagStatus === "incorrect" && (
-        <div style={{ color: "salmon", textAlign: "center", marginTop: "10px" }}>
+        <div
+          style={{ color: "salmon", textAlign: "center", marginTop: "10px" }}
+        >
           ❌ Incorrect. Try again.
         </div>
       )}
