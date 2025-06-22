@@ -183,6 +183,24 @@ const PuzzleGame: React.FC = () => {
             </div>
           </div>
         )}
+        {tiles.length === 0 && (
+          <div className={styles.popupOverlay}>
+            <div className={styles.popup}>
+              <h1>You Win! The Flag is: {FLAG}\</h1>
+              <button
+                onClick={() => {
+                  setTiles(initialTiles);
+                  setQueue([]);
+                  setGameOver(false);
+                  setRevealedLetters([]);
+                  setMatchCount(0);
+                }}
+              >
+                Play Again
+              </button>
+            </div>
+          </div>
+        )}
         {/* Tile board */}
         <div className={styles.tileBoard}>
           {tiles.map((tile, idx) => {
@@ -255,23 +273,62 @@ const PuzzleGame: React.FC = () => {
       {/* Rules overlay */}
       {showRules && <Rules onClose={() => setShowRules(false)} />}
 
-      {/* Flag button (bottom-right corner) */}
-      <button
-        onClick={() => setShowFlagInput(true)}
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          fontSize: "24px",
-          background: "none",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-        }}
-        title="Submit Flag"
-      >
-        🚩
-      </button>
+      {/* Export and Flag buttons (bottom-right corner) */}
+      <div style={{
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        display: "flex",
+        gap: "10px"
+      }}>
+        <button
+          onClick={() => {
+            fetch("/scene.json")
+              .then(res => res.json())
+              .then(data => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "scene.json";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              });
+          }}
+          style={{
+            fontSize: "17px",
+            background: "#7A9CFF",
+            border: "none",
+            color: "white",
+            cursor: "pointer",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontWeight: "bold",
+          }}
+          title="Export Scene"
+        >
+          <span style={{ fontSize: "20px" }}>💾</span>
+          Export Puzzle
+        </button>
+        <button
+          onClick={() => setShowFlagInput(true)}
+          style={{
+            fontSize: "24px",
+            background: "none",
+            border: "none",
+            color: "white",
+            cursor: "pointer",
+          }}
+          title="Submit Flag"
+        >
+          🚩
+        </button>
+      </div>
 
       {showFlagInput && (
         <Flag
