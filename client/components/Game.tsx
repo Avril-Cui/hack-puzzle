@@ -13,9 +13,6 @@ interface Tile {
   iconName: string;
 }
 
-const CELL_SIZE = 60;
-const ICONS = ["🍀", "🌈", "⚙️", "🐏", "🐯", "🐤", "📚", "🧠", "💻", "🐼"];
-
 const morseMap: Record<string, string> = {
   A: ".-",
   B: "-...",

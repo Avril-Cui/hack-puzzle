@@ -20,7 +20,10 @@ def random_position_data(offset_pool, range_pair):
 
 def generate_scene(level=1):
     # pick grid-range and offset-pool exactly as React makeScene does
-    range_pair  = SCENE_RANGES[min(4, level - 1)]
+    range_pair_1  = (0, 8)
+    range_pair_2 = (1, 7)
+    range_pair_3 = (2, 6)
+    range_pair_4 = (3, 6)
     offset_pool = OFFSETS[: 1 + level]
     icon_pool   = ICON_TYPES[: 2 * level]
 
@@ -35,7 +38,14 @@ def generate_scene(level=1):
     raw = []
     for icon in icon_pool:
         for _ in range(COPIES_PER_ICON):
-            row, col, off = random_position_data(offset_pool, range_pair)
+            if len(raw) < 64:
+                row, col, off = random_position_data(offset_pool, range_pair_1)
+            elif 64 <= len(raw) < 128:
+                row, col, off = random_position_data(offset_pool, range_pair_2)
+            elif 128 <= len(raw) < 192:
+                row, col, off = random_position_data(offset_pool, range_pair_3)
+            else:
+                row, col, off = random_position_data(offset_pool, range_pair_4)
             raw.append({
                 "id":       str(uuid.uuid4())[:6],
                 "iconName": icon,

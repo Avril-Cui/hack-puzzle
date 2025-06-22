@@ -85,7 +85,7 @@
 }
 
 .inactive {
-  filter: saturate(35%) brightness(70%);
+  filter: saturate(35%) brightness(50%);
   pointer-events: none;
 }
 
