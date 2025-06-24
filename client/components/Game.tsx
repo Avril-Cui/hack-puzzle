@@ -164,6 +164,9 @@ const PuzzleGame: React.FC = () => {
 
   return (
     <>
+      <div className={styles.starsWrapper}>
+        <img src="/buildings/stars.svg" className={styles.starsImg} alt="Stars" />
+      </div>
       <div className={styles.gameContainer}>
         {gameOver && (
           <div className={styles.popupOverlay}>
@@ -186,7 +189,7 @@ const PuzzleGame: React.FC = () => {
         {tiles.length === 0 && (
           <div className={styles.popupOverlay}>
             <div className={styles.popup}>
-              <h1>You Win! The Flag is: {FLAG}\</h1>
+              <h1>You Win! The Flag is: {FLAG}</h1>
               <button
                 onClick={() => {
                   setTiles(initialTiles);
@@ -202,18 +205,19 @@ const PuzzleGame: React.FC = () => {
           </div>
         )}
 
+        
         <div className={styles.cityBackground}>
           <div className={styles.flickerWrapper}>
             {/* Base layer: always visible unlit buildings */}
             <img
-              src="/buildings/buildings_unlit.svg"
+              src="/buildings/final_buildings_unlit.svg"
               className={styles.staticImg}
               alt="Unlit city backdrop"
             />
 
             {/* Animated layer: lit windows flicker in and out */}
             <img
-              src="/buildings/buildings_lit.svg"
+              src="/buildings/final_buildings_lit.svg"
               className={styles.flickerImg}
               alt="Lit city flicker"
             />
@@ -221,16 +225,16 @@ const PuzzleGame: React.FC = () => {
           {revealedLetters.map((letter, idx) => {
             const morse = morseMap[letter];
             const positions = [
-              { top: "14.3%", left: "25.7%" },   // 1st building (F)
-              { top: "10.13%", left: "92.45%" },  // 2nd building (O)
-              { top: "19.6%", left: "44.1%" },  // 3rd building (R)
-              { top: "10.87%", left: "52.05%" },  // 4th building (E)
-              { top: "16.51%", left: "69.4%" },  // 5th building (S)
-              { top: "14.19%", left: "7.0%" },  // 6th building (T)
-              { top: "11.6%", left: "63.2%" },  // 7th building (T)
-              { top: "17.76%", left: "13.72%" },  // 8th building (M)
-              { top: "11.4%", left: "37.31%" },  // 9th building (P)
-              { top: "9.35%", left: "81.1%" },  // 10th building (L)
+              { top: "16.97%", left: "25.7%" },   // 1st building (F)
+              { top: "12.05%", left: "92.45%" },  // 2nd building (O)
+              { top: "23.28%", left: "44.1%" },  // 3rd building (R)
+              { top: "12.9%", left: "52.05%" },  // 4th building (E)
+              { top: "19.65%", left: "69.4%" },  // 5th building (S)
+              { top: "16.87%", left: "7.0%" },  // 6th building (T)
+              { top: "13.75%", left: "63.2%" },  // 7th building (T)
+              { top: "21.05%", left: "13.72%" },  // 8th building (M)
+              { top: "13.52%", left: "37.31%" },  // 9th building (P)
+              { top: "11.13%", left: "81.1%" },  // 10th building (L)
             ];
             const pos = positions[idx] || { top: "42%", left: "0%" };
 
