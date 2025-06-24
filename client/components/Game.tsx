@@ -225,16 +225,16 @@ const PuzzleGame: React.FC = () => {
           {revealedLetters.map((letter, idx) => {
             const morse = morseMap[letter];
             const positions = [
-              { top: "16.97%", left: "25.7%" },   // 1st building (F)
-              { top: "12.05%", left: "92.45%" },  // 2nd building (O)
-              { top: "23.28%", left: "44.1%" },  // 3rd building (R)
-              { top: "12.9%", left: "52.05%" },  // 4th building (E)
-              { top: "19.65%", left: "69.4%" },  // 5th building (S)
-              { top: "16.87%", left: "7.0%" },  // 6th building (T)
-              { top: "13.75%", left: "63.2%" },  // 7th building (T)
-              { top: "21.05%", left: "13.72%" },  // 8th building (M)
-              { top: "13.52%", left: "37.31%" },  // 9th building (P)
-              { top: "11.13%", left: "81.1%" },  // 10th building (L)
+              { top: "20.87%", left: "25.7%" },   // 1st building (F)
+              { top: "14.73%", left: "92.45%" },  // 2nd building (O)
+              { top: "28.6%", left: "44.1%" },  // 3rd building (R)
+              { top: "15.8%", left: "52.05%" },  // 4th building (E)
+              { top: "24.05%", left: "69.4%" },  // 5th building (S)
+              { top: "20.69%", left: "7.0%" },  // 6th building (T)
+              { top: "16.9%", left: "63.2%" },  // 7th building (T)
+              { top: "25.9%", left: "13.72%" },  // 8th building (M)
+              { top: "16.64%", left: "37.31%" },  // 9th building (P)
+              { top: "13.675%", left: "81.1%" },  // 10th building (L)
             ];
             const pos = positions[idx] || { top: "42%", left: "0%" };
 
