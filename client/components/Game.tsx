@@ -5,6 +5,7 @@ import MorseBuilding from "./Building";
 import Rules from "./Rules";
 import Flag from "./Flag";
 import MorseFlasher from "./MorseFlasher";
+import JSZip from "jszip";
 
 interface Tile {
   id: string;
@@ -160,12 +161,14 @@ const PuzzleGame: React.FC = () => {
     return `/icons/${iconName}.${extMap[iconName] || "png"}`;
   };
 
-  
-
   return (
     <>
       <div className={styles.starsWrapper}>
-        <img src="/buildings/stars.svg" className={styles.starsImg} alt="Stars" />
+        <img
+          src="/buildings/stars.svg"
+          className={styles.starsImg}
+          alt="Stars"
+        />
       </div>
       <div className={styles.gameContainer}>
         {gameOver && (
@@ -205,7 +208,6 @@ const PuzzleGame: React.FC = () => {
           </div>
         )}
 
-        
         <div className={styles.cityBackground}>
           <div className={styles.flickerWrapper}>
             {/* Base layer: always visible unlit buildings */}
@@ -225,16 +227,16 @@ const PuzzleGame: React.FC = () => {
           {revealedLetters.map((letter, idx) => {
             const morse = morseMap[letter];
             const positions = [
-              { top: "20.87%", left: "25.7%" },   // 1st building (F)
-              { top: "14.73%", left: "92.45%" },  // 2nd building (O)
-              { top: "28.6%", left: "44.1%" },  // 3rd building (R)
-              { top: "15.8%", left: "52.05%" },  // 4th building (E)
-              { top: "24.05%", left: "69.4%" },  // 5th building (S)
-              { top: "20.69%", left: "7.0%" },  // 6th building (T)
-              { top: "16.9%", left: "63.2%" },  // 7th building (T)
-              { top: "25.9%", left: "13.72%" },  // 8th building (M)
-              { top: "16.64%", left: "37.31%" },  // 9th building (P)
-              { top: "13.675%", left: "81.1%" },  // 10th building (L)
+              { top: "20.87%", left: "25.7%" }, // 1st building (F)
+              { top: "14.73%", left: "92.45%" }, // 2nd building (O)
+              { top: "28.6%", left: "44.1%" }, // 3rd building (R)
+              { top: "15.8%", left: "52.05%" }, // 4th building (E)
+              { top: "24.05%", left: "69.4%" }, // 5th building (S)
+              { top: "20.69%", left: "7.0%" }, // 6th building (T)
+              { top: "16.9%", left: "63.2%" }, // 7th building (T)
+              { top: "25.9%", left: "13.72%" }, // 8th building (M)
+              { top: "16.64%", left: "37.31%" }, // 9th building (P)
+              { top: "13.675%", left: "81.1%" }, // 10th building (L)
             ];
             const pos = positions[idx] || { top: "42%", left: "0%" };
 
@@ -328,28 +330,23 @@ const PuzzleGame: React.FC = () => {
       {showRules && <Rules onClose={() => setShowRules(false)} />}
 
       {/* Export and Flag buttons (bottom-right corner) */}
-      <div style={{
-        position: "fixed",
-        bottom: "20px",
-        right: "20px",
-        display: "flex",
-        gap: "10px"
-      }}>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          display: "flex",
+          gap: "10px",
+        }}
+      >
         <button
           onClick={() => {
-            fetch("/scene.json")
-              .then(res => res.json())
-              .then(data => {
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "scene.json";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              });
+            const a = document.createElement("a");
+            a.href = "/export.zip";
+            a.download = "export.zip";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
           }}
           style={{
             fontSize: "17px",
